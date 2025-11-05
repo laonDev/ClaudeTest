@@ -2,6 +2,14 @@
 
 HTML5로 만든 완전 기능 스도쿠 게임입니다. 브라우저에서 바로 실행할 수 있습니다.
 
+## 🎮 온라인 플레이
+
+**GitHub Pages에서 바로 플레이하기:**
+- 🔗 [게임 플레이](https://laondev.github.io/ClaudeTest/)
+- 🔗 [htmlpreview로 보기](https://htmlpreview.github.io/?https://github.com/laonDev/ClaudeTest/blob/claude/html5-web-stopwatch-011CUpuAUhaFgGg83RVS1hNE/sudoku.html)
+
+> GitHub Pages가 활성화되어 있으면 위 링크에서 바로 게임을 즐기실 수 있습니다.
+
 ## 🎯 특징
 
 - **세 가지 난이도**: 쉬움, 중간, 어려움
