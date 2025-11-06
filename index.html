@@ -316,14 +316,18 @@
 
         // 셀 선택
         function selectCell(index) {
-            if (initialBoard[index] !== 0) return;
-
             const cells = document.querySelectorAll('.cell');
             cells.forEach(cell => cell.classList.remove('selected'));
 
-            selectedCell = index;
-            cells[index].classList.add('selected');
+            // 빈 칸인 경우에만 선택 표시
+            if (initialBoard[index] === 0) {
+                selectedCell = index;
+                cells[index].classList.add('selected');
+            } else {
+                selectedCell = null;  // fixed 셀은 선택할 수 없음
+            }
 
+            // 모든 경우에 하이라이트는 표시
             highlightRelated(index);
         }
 
