@@ -317,18 +317,30 @@
         // 셀 선택
         function selectCell(index) {
             const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.classList.remove('selected'));
+            cells.forEach(cell => cell.classList.remove('selected', 'highlight'));
 
-            // 빈 칸인 경우에만 선택 표시
-            if (initialBoard[index] === 0) {
-                selectedCell = index;
-                cells[index].classList.add('selected');
-            } else {
-                selectedCell = null;  // fixed 셀은 선택할 수 없음
+            // 숫자가 채워진 칸을 클릭한 경우: 같은 숫자 하이라이트
+            if (board[index] !== 0) {
+                highlightSameNumbers(index);
+                return;
             }
 
-            // 모든 경우에 하이라이트는 표시
+            // 빈 칸인 경우: 선택 및 행/열 하이라이트
+            selectedCell = index;
+            cells[index].classList.add('selected');
             highlightRelated(index);
+        }
+
+        // 같은 숫자를 가진 셀들 하이라이트
+        function highlightSameNumbers(index) {
+            const cells = document.querySelectorAll('.cell');
+            const targetNumber = board[index];
+
+            for (let i = 0; i < 81; i++) {
+                if (board[i] === targetNumber) {
+                    cells[i].classList.add('highlight');
+                }
+            }
         }
 
         // 관련 셀 하이라이트
