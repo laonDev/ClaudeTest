@@ -104,6 +104,23 @@
             background: #fff9c4;
         }
 
+        .cell.pencil-marks {
+            font-size: 10px;
+            font-weight: normal;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 2px;
+            line-height: 1;
+        }
+
+        .cell.pencil-marks span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
         /* 3x3 블록 구분을 위한 두꺼운 테두리 */
         .cell:nth-child(3n):not(:nth-child(9n)) {
             border-right: 2px solid #333;
@@ -280,6 +297,8 @@
             <button class="btn-primary" onclick="newGame()">새 게임</button>
             <button class="btn-secondary" onclick="checkSolution()">정답 확인</button>
             <button class="btn-secondary" onclick="showHint()">힌트</button>
+            <button class="btn-secondary" onclick="autoFillPencilMarks()">자동 메모</button>
+            <button class="btn-secondary" onclick="clearPencilMarks()">메모 지우기</button>
             <button class="btn-danger" onclick="resetGame()">초기화</button>
         </div>
     </div>
@@ -288,6 +307,7 @@
         let board = [];
         let solution = [];
         let initialBoard = [];
+        let pencilMarks = []; // 각 셀의 연필 마크를 저장
         let selectedCell = null;
         let difficulty = 'medium';
         let mistakes = 0;
@@ -365,12 +385,15 @@
 
             if (num === 0) {
                 board[selectedCell] = 0;
+                pencilMarks[selectedCell] = []; // 연필 마크도 지우기
                 cell.textContent = '';
                 cell.classList.remove('error', 'user-input');
+                renderBoard();
                 return;
             }
 
             board[selectedCell] = num;
+            pencilMarks[selectedCell] = []; // 숫자를 입력하면 연필 마크 지우기
             cell.textContent = num;
             cell.classList.add('user-input');
 
@@ -413,6 +436,42 @@
             }
 
             return true;
+        }
+
+        // 특정 셀에 들어갈 수 있는 가능한 숫자들을 계산
+        function getPossibleNumbers(index) {
+            const row = Math.floor(index / 9);
+            const col = index % 9;
+            const possible = [];
+
+            for (let num = 1; num <= 9; num++) {
+                if (isValid(board, row, col, num)) {
+                    possible.push(num);
+                }
+            }
+
+            return possible;
+        }
+
+        // 모든 빈 셀에 자동으로 연필 마크 추가
+        function autoFillPencilMarks() {
+            pencilMarks = new Array(81).fill(null).map(() => []);
+
+            for (let i = 0; i < 81; i++) {
+                if (board[i] === 0) {
+                    pencilMarks[i] = getPossibleNumbers(i);
+                }
+            }
+
+            renderBoard();
+            showMessage('모든 빈 칸에 가능한 숫자를 표시했습니다.', 'success');
+        }
+
+        // 모든 연필 마크 지우기
+        function clearPencilMarks() {
+            pencilMarks = new Array(81).fill(null).map(() => []);
+            renderBoard();
+            showMessage('메모를 모두 지웠습니다.', 'success');
         }
 
         // 스도쿠 풀이 (백트래킹)
@@ -477,11 +536,32 @@
             const cells = document.querySelectorAll('.cell');
             cells.forEach((cell, index) => {
                 const value = board[index];
-                cell.textContent = value !== 0 ? value : '';
-                cell.classList.remove('fixed', 'user-input', 'error', 'selected', 'highlight');
+                cell.classList.remove('fixed', 'user-input', 'error', 'selected', 'highlight', 'pencil-marks');
 
-                if (initialBoard[index] !== 0) {
-                    cell.classList.add('fixed');
+                if (value !== 0) {
+                    // 숫자가 있는 경우
+                    cell.textContent = value;
+                    if (initialBoard[index] !== 0) {
+                        cell.classList.add('fixed');
+                    } else {
+                        cell.classList.add('user-input');
+                    }
+                } else if (pencilMarks[index] && pencilMarks[index].length > 0) {
+                    // 연필 마크가 있는 경우
+                    cell.classList.add('pencil-marks');
+                    cell.innerHTML = '';
+
+                    // 1-9까지의 숫자를 3x3 그리드로 표시
+                    for (let i = 1; i <= 9; i++) {
+                        const span = document.createElement('span');
+                        if (pencilMarks[index].includes(i)) {
+                            span.textContent = i;
+                        }
+                        cell.appendChild(span);
+                    }
+                } else {
+                    // 빈 셀
+                    cell.textContent = '';
                 }
             });
             selectedCell = null;
@@ -492,6 +572,7 @@
             mistakes = 0;
             timer = 0;
             selectedCell = null;
+            pencilMarks = new Array(81).fill(null).map(() => []);
 
             document.getElementById('mistakes').textContent = '0';
             document.getElementById('timer').textContent = '00:00';
@@ -508,6 +589,7 @@
         function resetGame() {
             board = [...initialBoard];
             mistakes = 0;
+            pencilMarks = new Array(81).fill(null).map(() => []);
             document.getElementById('mistakes').textContent = '0';
             hideMessage();
             renderBoard();
